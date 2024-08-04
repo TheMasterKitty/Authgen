@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Authgen Clock</title>
+    <script src="https://unpkg.com/@otplib/preset-browser@^12.0.0/buffer.js"></script>
+    <script src="https://unpkg.com/@otplib/preset-browser@^12.0.0/index.js"></script>
+    <style>
+        body > * {
+            transform: scale(0.45);
+            transform-origin: center center;
+        }
+
+        body, html {
+            background: radial-gradient(circle, #1a1a1a, #000);
+            color: white;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .panel {
+            text-align: center;
+        }
+        .clock {
+            width: 200px;
+            height: 200px;
+            border: 5px solid white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            margin: 0 auto;
+        }
+        .ticker {
+            position: absolute;
+            width: 4px;
+            height: 50%;
+            top: 0%;
+            background: white;
+            transform-origin: bottom;
+            transform: rotate(0deg);
+        }
+        .number {
+            margin-top: 20px;
+            font-size: 2.5rem;
+        }
+        #timer {
+            font-size: 3rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="panel">
+        <div class="clock">
+            <h1 id="timer"></h1>
+            <div class="ticker" id="ticker"></div>
+        </div>
+        <div class="number" id="number"></div>
+    </div>
+
+    <script>
+        const token = window.location.hash.substring(1);
+        window.otplib.authenticator.options = { "step": 30 };
+        let code = window.otplib.authenticator.generate(token);
+        document.getElementById("number").innerText = code.substring(0, 3) + " " + code.substring(3);
+        let seconds = -1;
+        function updateClock() {
+            seconds++;
+            document.getElementById("ticker").style.transform = `rotate(${seconds * 12}deg)`;
+            document.getElementById("timer").innerText = (seconds) + "s";
+
+            if (seconds >= 30) {
+                code = window.otplib.authenticator.generate(token);
+                document.getElementById("number").innerText = code.substring(0, 3) + " " + code.substring(3);
+                seconds = 0;
+            }
+        }
+
+        setInterval(updateClock, 1000);
+        updateClock();
+    </script>
+</body>
+</html>
